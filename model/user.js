@@ -20,4 +20,15 @@ UserSchema.pre('save', function(next) {
 });
 */
 
+/*
+//usando async e await
+UserSchema.pre('save', async function(next) {
+   let user = this;
+   if (!user.isModified('password')) return next();
+
+    user.password = await bcrypt.hash(user.password, 10);
+    return next();
+});
+*/
+
 module.exports = mongoose.model('User', UserSchema);
