@@ -2,104 +2,69 @@ const express = require('express');
 const router = express.Router();
 const Users = require('../model/user');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-//metodo get da rota de usuarios
-/*router.get('/', function (req, res) {
-    Users.find({}, function(err, data) {
-        if (err) return res.send({ error: 'Erro na consulta de usuários' });
-        return res.send(data);
-    });
-});*/
+//FUNÇÕES AUXILIARES
+const createUserToken = function (userId) {
+    return jwt.sign({id: userId}, "batatafrita2019", {expiresIn: "7d"});
+};
+
+
 //usando async e await
 router.get('/', async function (req, res) {
     try {
         const users = await Users.find({});
-        return  res.send(users);
+        return  res.status(200).send(users);
     }
     catch (err) {
-        return res.send({ error: 'Erro na consulta de usuários' });
+        return res.status(500).send({ error: 'Erro na consulta de usuários' });
     }
 });
 
 //metodo post da rota de usuarios
 router.post('/', function (req, res) {
-    return res.send({message: 'Tudo ok com o método POST da rota de usuarios!'});
+    return res.status(200).send({message: 'Tudo ok com o método POST da rota de usuarios!'});
 });
 
-/*router.post('/create', function (req, res) {
-    const { email, password } = req.body;
 
-    if (!email || !password) return res.send({ error: 'Dados insuficientes'});
-
-    Users.findOne({email}, function (err, data) {
-        if (err) return res.send({ error: 'Erro ao buscar usuário ' + email });
-        if (data) return res.send({ error: 'Usuario ja registrado ' + email });
-
-        Users.create({ email, password}, function (err, data) {
-            if (err) return res.send({ error: 'Erro ao criar usuário ' + email });
-
-            data.password = undefined;
-            return res.send(data);
-        });
-    });
-
-});*/
 //usando async e await
 router.post('/create', async function (req, res) {
     const { email, password } = req.body;
 
-    if (!email || !password) return res.send({ error: 'Dados insuficientes'});
+    if (!email || !password) return res.status(404).send({ error: 'Dados insuficientes'});
 
     try {
-        if (await Users.findOne({email})) res.send({ error: 'Usuario ja registrado ' + email });
+        if (await Users.findOne({email})) res.status(404).send({ error: 'Usuario ja registrado ' + email });
 
         const user = await Users.create(req.body);
         user.password = undefined;
-        return res.send(user);
+        return res.status(200).send(user);
     }
     catch (err) {
-        return res.send({ error: 'Erro ao buscar usuário!' });
+        return res.status(500).send({ error: 'Erro ao buscar usuário!' });
     }
 });
 
-/*router.post('/auth', function (req, res) {
-    const { email, password } = req.body;
 
-    if (!email || !password) return res.send({ error: 'Dados insuficientes'});
-
-    Users.findOne({email}, function (err, data) {
-        if (err) return res.send({ error: 'Erro ao buscar usuário ' + email });
-        if (!data) return res.send({ error: 'Usuario não registrado ' + email });
-
-        bcrypt.compare(password, data.password, function (err, same) {
-           if (!same) return res.send({ error: 'Usuario não registrado '});
-
-            data.password = undefined;
-            return res.send(data);
-        });
-
-    }).select('password');
-
-});*/
 //usando async e await
 router.post('/auth', async function (req, res) {
     const { email, password } = req.body;
 
-    if (!email || !password) return res.send({ error: 'Dados insuficientes'});
+    if (!email || !password) return res.status(404).send({ error: 'Dados insuficientes'});
 
     try {
         const user = await Users.findOne({email}).select('password');
-        if (!user) return res.send({ error: 'Usuario não registrado '});
+        if (!user) return res.status(404).send({ error: 'Usuario não registrado '});
 
         const pass_ok = await bcrypt.compare(password, user.password);
 
-        if (!pass_ok)  return res.send({ error: 'Erro ao autenticar usuário ' + email });
+        if (!pass_ok)  return res.status(404).send({ error: 'Erro ao autenticar usuário ' + email });
 
         user.password = undefined;
-        return res.send(user);
+        return res.status(200).send(user, createUserToken(user.id));
     }
     catch (err) {
-        return res.send({ error: 'Erro ao buscar usuário ' + email });
+        return res.status(500).send({ error: 'Erro ao buscar usuário ' + email });
     }
 });
 
