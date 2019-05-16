@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Users = require('../model/user');
-//const bcrypt = require('bcrypt');
-const bcrypt = '123456';//temporario ate conseguir executar o npm install bcrypt sem erro
+const bcrypt = require('bcrypt');
 
 //metodo get da rota de usuarios
 /*router.get('/', function (req, res) {
