@@ -2,16 +2,9 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const config = require('./config/config');
 
-//String de conexao mongodb clever
-//const url = 'mongodb://uswjde3iz596yngjuy9r:pKpwswJcCtAGlfuZrnv0@byrstsldzt0y1tg-mongodb.services.clever-cloud.com:27017/byrstsldzt0y1tg';
-
-//String de conexao mongodb altas
-//const url = 'mongodb+srv://uswjde3iz596yngjuy9r:pKpwswJcCtAGlfuZrnv0@clusterapi-dnmpn.gcp.mongodb.net/test?retryWrites=true';
-const url = 'mongodb+srv://uswjde3iz596yngjuy9r:pKpwswJcCtAGlfuZrnv0@cluster0-dnmpn.mongodb.net/test?retryWrites=true';
-
-//mongostat --host Cluster0-shard-0/cluster0-shard-00-00-dnmpn.mongodb.net:27017,cluster0-shard-00-01-dnmpn.mongodb.net:27017,cluster0-shard-00-02-dnmpn.mongodb.net:27017 --ssl --username uswjde3iz596yngjuy9r --password pKpwswJcCtAGlfuZrnv0 --authenticationDatabase admin
-
+const url = config.bd_string;
 const options = { reconnectTries: Number.MAX_VALUE, reconnectInterval: 500, poolSize: 5, useNewUrlParser: true };
 
 mongoose.connect(url, options);
